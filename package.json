@@ -16,5 +16,14 @@
 	"bugs": {
 		"url": "https://github.com/abhishekk904/fleeter/issues"
 	},
-	"homepage": "https://github.com/abhishekk904/fleeter#readme"
+	"homepage": "https://github.com/abhishekk904/fleeter#readme",
+	"dependencies": {
+		"bcrypt": "^5.0.0",
+		"body-parser": "^1.19.0",
+		"express": "^4.17.1",
+		"express-session": "^1.17.1",
+		"mongodb": "^3.6.4",
+		"mongoose": "^5.11.18",
+		"pug": "^3.0.0"
+	}
 }
