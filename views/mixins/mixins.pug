@@ -5,6 +5,8 @@ mixin createPostForm(userLoggedIn)
         .textareaContainer 
             textarea#postTextarea(placeholder="What's happening?")
             .buttonsContainer
+                button.postPhotoButton(data-toggle='modal', data-target='#postPhotoUploadModal')
+                    i.las.la-camera
                 button#submitPostButton(disabled="") Post
 
 mixin createReplyModal(userLoggedIn)
@@ -43,6 +45,7 @@ mixin createPostModals(userLoggedIn)
     +createdeletePostModal()
     +createPinPostModal()
     +createUnpinPostModal()
+    +createPostPhotoUploadModal(userLoggedIn)
 
 mixin createFollowButton(user, isFollowing)
     - text = isFollowing ? "Following" : "Follow"
@@ -86,12 +89,32 @@ mixin createCoverPhotoUploadModal()
                 .modal-footer
                     button#coverPhotoButton.btn(type='button') Save
 
-mixin createPinPostModal()
-    #confirmPinModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='confirmPinModalLabel', aria-hidden='true')
+mixin createPostPhotoUploadModal()
+    #postPhotoUploadModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='postPhotoUploadModalLabel', aria-hidden='true')
         .modal-dialog(role='document')
             .modal-content
                 .modal-header
-                    h5#confirmPinModalLabel.modal-title Pin this post?
+                    h5#postPhotoUploadModalLabel.modal-title Write a post
+                    button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span(aria-hidden='true') &times;
+                .modal-body.model-body-post
+                    .postFormContainer
+                        .userImageContainer
+                            img(src=userLoggedIn.profilePic, alt="User's profile picture")
+                        .textareaContainer 
+                            textarea#postPhotoTextarea(placeholder="What's happening?")
+                    input#postPhoto(type="file", name="postPhoto")
+                    .postPhotoPreviewContainer
+                        img#postPreview
+                .modal-footer
+                    button#postPhotoButton.btn(type='button', disabled="") Post
+
+mixin createPinPostModal()
+    #chatNameModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='chatNameModalLabel', aria-hidden='true')
+        .modal-dialog(role='document')
+            .modal-content
+                .modal-header
+                    h5#chatNameModalLabel.modal-title Pin this post?
                     button.close(type='button', data-dismiss='modal', aria-label='Close')
                     span(aria-hidden='true') &times;
                 .modal-body
@@ -111,3 +134,40 @@ mixin createUnpinPostModal()
                     p This post will be unpinned.
                 .modal-footer
                     button#unpinPostButton.btn(type='button') Unpin
+
+mixin createChatImage(chatData, userLoggedIn)
+    
+    if(!chatData)
+        return 
+
+    - let i = 0
+    - let maxImagesToShow = 3 
+    - let remainingUsers = chatData.users.length - maxImagesToShow
+    - remainingUsers--;
+    
+    .chatImagesContainer 
+
+        if remainingUsers > 0
+            .userCount 
+                span +#{remainingUsers}
+
+        each user in chatData.users
+            if chatData.users.length != 1 && user._id == userLoggedIn._id
+                -continue
+            else if i >= maxImagesToShow
+                -break
+            img(src=user.profilePic, alt='User Profile Pic', title=user.firstName)
+            - i++
+
+mixin createChatNameModal(chat)
+    #chatNameModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='chatNameModalLabel', aria-hidden='true')
+        .modal-dialog(role='document')
+            .modal-content
+                .modal-header
+                    h5#chatNameModalLabel.modal-title Change the chat name
+                    button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span(aria-hidden='true') &times;
+                .modal-body
+                    input#chatNameTextbox(type="text", placeholder='Enter a name for this chat', value=chat.chatName)
+                .modal-footer
+                    button#chatNameButton.btn(type='button') Save

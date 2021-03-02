@@ -8,8 +8,31 @@ const fs = require('fs');
 const upload = multer({ dest: 'uploads/' });
 const User = require('../../schema/UserSchema');
 const Post = require('../../schema/PostSchema');
+const Notification = require('../../schema/NotificationSchema');
+const { use } = require('../loginRoutes');
 
 app.use(bodyParser.urlencoded({ extended: false }));
+
+router.get('/', async (req, res, next) => {
+	let searchObj = req.query;
+	if (req.query.search !== undefined) {
+		searchObj = {
+			$or: [
+				{ firstName: { $regex: req.query.search, $options: 'i' } },
+				{ lastName: { $regex: req.query.search, $options: 'i' } },
+				{ username: { $regex: req.query.search, $options: 'i' } },
+			],
+		};
+	}
+	User.find(searchObj)
+		.then((results) => {
+			res.status(200).send(results);
+		})
+		.catch((error) => {
+			console.error(error);
+			res.sendStatus(400);
+		});
+});
 
 router.put('/:userId/follow', async (req, res, next) => {
 	const userId = req.params.userId;
@@ -36,6 +59,15 @@ router.put('/:userId/follow', async (req, res, next) => {
 		console.log(error);
 		res.sendStatus(400);
 	});
+
+	if (!isFollowing) {
+		await Notification.insertNotification(
+			userId,
+			req.session.user._id,
+			'follow',
+			req.session.user._id
+		);
+	}
 
 	res.status(200).send(req.session.user);
 });

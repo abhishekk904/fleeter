@@ -1,0 +1,11 @@
+extends layouts/main-layout.pug
+block content
+    
+    .resultsContainer
+
+block headerButton
+    a(class='newMessageButton' href = '/messages/new')
+        i.las.la-comment-medical
+
+block scripts
+    script(src='/js/inboxPage.js')

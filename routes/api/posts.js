@@ -2,8 +2,13 @@ const express = require('express');
 const app = express();
 const router = express.Router();
 const bodyParser = require('body-parser');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const upload = multer({ dest: 'uploads/' });
 const User = require('../../schema/UserSchema');
 const Post = require('../../schema/PostSchema');
+const Notification = require('../../schema/NotificationSchema');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -14,6 +19,11 @@ router.get('/', async (req, res, next) => {
 		const isReply = searchObj.isReply == 'true';
 		searchObj.replyTo = { $exists: isReply };
 		delete searchObj.isReply;
+	}
+
+	if (searchObj.search !== undefined) {
+		searchObj.content = { $regex: searchObj.search, $options: 'i' };
+		delete searchObj.search;
 	}
 
 	if (searchObj.followingOnly !== undefined) {
@@ -50,7 +60,7 @@ router.get('/:id', async (req, res, next) => {
 	res.status(200).send(results);
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', upload.single('croppedImage'), async (req, res, next) => {
 	if (!req.body.content) {
 		console.log('Content param not sent with request');
 		return res.sendStatus(400);
@@ -64,16 +74,73 @@ router.post('/', async (req, res, next) => {
 	if (req.body.replyTo) {
 		postData.replyTo = req.body.replyTo;
 	}
+	if (req.file) {
+		// console.log('Hello');
+		const filePath = `/uploads/images/${req.file.filename}.png`;
+		const tempPath = req.file.path;
+		const targetPath = path.join(__dirname, `../../${filePath}`);
 
-	Post.create(postData)
-		.then(async (newPost) => {
-			newPost = await User.populate(newPost, { path: 'postedBy' });
-			res.status(201).send(newPost);
-		})
-		.catch((error) => {
-			console.log(error);
-			res.sendStatus(400);
+		fs.rename(tempPath, targetPath, async (error) => {
+			if (error != null) {
+				conole.log(error);
+				res.sendStatus(400);
+			}
+			postData.postPhoto = filePath;
+			Post.create(postData)
+				.then(async (newPost) => {
+					newPost = await User.populate(newPost, {
+						path: 'postedBy',
+					});
+					newPost = await Post.populate(newPost, {
+						path: 'replyTo',
+					});
+
+					if (
+						newPost.replyTo !== undefined &&
+						newPost.replyTo.postedBy != req.session.user._id
+					) {
+						await Notification.insertNotification(
+							newPost.replyTo.postedBy,
+							req.session.user._id,
+							'reply',
+							newPost._id
+						);
+					}
+
+					res.status(201).send(newPost);
+				})
+				.catch((error) => {
+					console.log(error);
+					return res.sendStatus(400);
+				});
 		});
+	} else {
+		Post.create(postData)
+			.then(async (newPost) => {
+				newPost = await User.populate(newPost, { path: 'postedBy' });
+				newPost = await Post.populate(newPost, {
+					path: 'replyTo',
+				});
+
+				if (
+					newPost.replyTo !== undefined &&
+					newPost.replyTo.postedBy != req.session.user._id
+				) {
+					await Notification.insertNotification(
+						newPost.replyTo.postedBy,
+						req.session.user._id,
+						'reply',
+						newPost._id
+					);
+				}
+
+				res.status(201).send(newPost);
+			})
+			.catch((error) => {
+				console.log(error);
+				res.sendStatus(400);
+			});
+	}
 });
 
 router.put('/:id/like', async (req, res, next) => {
@@ -101,6 +168,17 @@ router.put('/:id/like', async (req, res, next) => {
 		console.log(error);
 		res.sendStatus(400);
 	});
+
+	if (!isLiked) {
+		if (post.postedBy != userId) {
+			await Notification.insertNotification(
+				post.postedBy,
+				userId,
+				'postLike',
+				post._id
+			);
+		}
+	}
 
 	res.status(200).send(post);
 });
@@ -148,6 +226,17 @@ router.post('/:id/retweet', async (req, res, next) => {
 		console.log(error);
 		res.sendStatus(400);
 	});
+
+	if (!deletedpost) {
+		if (post.postedBy != userId) {
+			await Notification.insertNotification(
+				post.postedBy,
+				userId,
+				'retweet',
+				post._id
+			);
+		}
+	}
 
 	res.status(200).send(post);
 });
