@@ -152,4 +152,18 @@ router.post(
 	}
 );
 
+router.get('/:userId/suggestions', async (req, res, next) => {
+	User.find({
+		_id: { $ne: req.params.userId },
+		followers: { $ne: req.params.userId },
+	})
+		.then((results) => {
+			res.status(200).send(results);
+		})
+		.catch((error) => {
+			console.error(error);
+			res.sendStatus(400);
+		});
+});
+
 module.exports = router;

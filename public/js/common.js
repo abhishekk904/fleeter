@@ -5,6 +5,21 @@ var selectedUsers = [];
 $(document).ready(() => {
 	refreshMessagesBadge();
 	refreshNotificationsBadge();
+	$.get(
+		'/api/posts',
+		{
+			replyTo: { $exists: false },
+			content: { $exists: true },
+			postedBy: { $ne: userLoggedIn._id },
+		},
+		(results) => {
+			console.log(results);
+			outputPosts(results, $('.trendingPostContainer'));
+		}
+	);
+	$.get(`/api/users/${userLoggedIn._id}/suggestions`, (results) => {
+		outputUsers(results, $('.userToFollowConatiner'));
+	});
 });
 
 $('#postTextarea').on('input', function () {
@@ -94,7 +109,7 @@ $('#deletePostModal').on('show.bs.modal', (event) => {
 	$('#deletePostButton').data('id', postId);
 });
 
-$('#confirmPinModal').on('show.bs.modal', (event) => {
+$('#pinModal').on('show.bs.modal', (event) => {
 	const button = $(event.relatedTarget);
 	const postId = getPostIdFromElement(button);
 	$('#pinPostButton').data('id', postId);
@@ -481,7 +496,7 @@ function createPostHtml(postData, boldFont = false) {
 	let verifiedBadge = '';
 	if (postData.postedBy._id === userLoggedIn._id) {
 		let pinnedClass = '';
-		let dataTarget = '#confirmPinModal';
+		let dataTarget = '#pinModal';
 		if (postData.pinned === true) {
 			pinnedClass = 'active';
 			dataTarget = '#unpinModal';
@@ -637,6 +652,10 @@ function createUserHtml(userData, showFollowButton) {
                             <button class='${buttonClass}' data-user='${userData._id}'>${text}</button>
                         <div>`;
 	}
+	let verifiedBadge = '';
+	if (userData.isVerified) {
+		verifiedBadge = `<span class='badge'><i class="fas fa-certificate"></i></span>`;
+	}
 
 	return `<div class='user'>
                 <div class='userImageContainer'>
@@ -645,6 +664,7 @@ function createUserHtml(userData, showFollowButton) {
                 <div class='userDetailsContainer'>
                     <div class='header'>
                         <a class='displayName' href='/profile/${userData.username}'>${name}</a>
+						${verifiedBadge}
                         <span class='username'>@${userData.username}</span>
                     </div>
                 </div>
@@ -751,7 +771,11 @@ function refreshMessagesBadge() {
 
 		if (numResults > 0) {
 			$('#messagesBadge').text(numResults).addClass('active');
-		} else $('#messagesBadge').text('').removeClass('active');
+			$('#smallMessagesBadge').text(numResults).addClass('active');
+		} else {
+			$('#messagesBadge').text('').removeClass('active');
+			$('#smallMessagesBadge').text('').removeClass('active');
+		}
 	});
 }
 
@@ -761,7 +785,11 @@ function refreshNotificationsBadge() {
 
 		if (numResults > 0) {
 			$('#notificationsBadge').text(numResults).addClass('active');
-		} else $('#notificationsBadge').text('').removeClass('active');
+			$('#smallNotificationsBadge').text(numResults).addClass('active');
+		} else {
+			$('#notificationsBadge').text('').removeClass('active');
+			$('#smallNotificationsBadge').text('').removeClass('active');
+		}
 	});
 }
 

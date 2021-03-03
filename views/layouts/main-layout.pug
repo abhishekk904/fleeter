@@ -5,7 +5,8 @@ html(lang="en")
     head
         meta(charset="UTF-8")
         meta(http-equiv="X-UA-Compatible", content="IE=edge")
-        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(name='viewport', content='height=device-height, \ width=device-width, initial-scale=1.0, \ minimum-scale=1.0, maximum-scale=1.0, \ user-scalable=no, target-densitydpi=device-dpi')
+
         title #{pageTitle}
         link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.min.css')
         link(rel='stylesheet', href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css', integrity='sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh', crossorigin='anonymous')
@@ -13,31 +14,82 @@ html(lang="en")
     body 
         script.
             const userLoggedIn = !{userLoggedInJs};
-        .wrapper
-            .row
-                nav.col-2
+        .smallNavBar
+            .smallNav
+                .logo
                     a.blue(href="/")
                         i.las.la-feather-alt
+                                    
+                .homeIcon
                     a(href="/")
                         i.las.la-home
+                .searchIcon
                     a(href="/search")
                         i.las.la-search
+                .notificationIcon
                     a(href="/notifications")
                         i.las.la-bell
-                        span#notificationsBadge
+                        span#smallNotificationsBadge
+                                
+                .messageIcon
                     a(href="/messages")
                         i.las.la-envelope
-                        span#messagesBadge
+                            span#smallMessagesBadge
+                .profileIcon
                     a(href="/profile")
                         i.las.la-user
+                .logOut
                     a(href="/logout")
                         i.las.la-sign-out-alt
-                .mainSectionContainer.col-10.col-md-8.col-lg-6
+        .wrapper
+            
+            .app
+                .navContainer
+                    nav
+                        .logo
+                            a.blue(href="/")
+                                i.las.la-feather-alt
+                                
+                        .homeIcon
+                            a(href="/")
+                                i.las.la-home
+                                    span Home
+                        .searchIcon
+                            a(href="/search")
+                                i.las.la-search
+                                    span Search
+                        .notificationIcon
+                            a(href="/notifications")
+                                i.las.la-bell
+                                    span Notifications
+                                span#notificationsBadge
+                                
+                        .messageIcon
+                            a(href="/messages")
+                                i.las.la-envelope
+                                    span Messages
+                                span#messagesBadge
+                        .profileIcon
+                            a(href="/profile")
+                                i.las.la-user
+                                    span Profile
+                        .logOut
+                            a(href="/logout")
+                                i.las.la-sign-out-alt
+                                    span Logout
+            .expandableContainer
+                .mainSectionContainer
                     .titleContainer
                         h1 #{pageTitle}
                         block headerButton
                     block content
-                .d-none.d-md-block.col-md-2.col-lg-4
+                .extraContainer
+                    .latestTrendingPost
+                        h1 Latest Posts
+                        .trendingPostContainer
+                    .userSuggestions
+                        h1 User Suggestions
+                        .userToFollowConatiner
         #notificationList                            
 
 
