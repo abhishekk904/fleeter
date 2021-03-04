@@ -1,6 +1,12 @@
 let connected = false;
 
-const socket = io('http://localhost:3003');
+var socketUrl = 'https://fleeterr.herokuapp.com';
+
+if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+	socketUrl = 'http://localhost:3003';
+}
+
+const socket = io(socketUrl);
 
 socket.emit('setup', userLoggedIn);
 
