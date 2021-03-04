@@ -6,6 +6,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('./database');
 const session = require('express-session');
+const cloudinary = require('cloudinary').v2;
 
 const server = app.listen(port, () => {
 	console.log('Connected on ' + port);
@@ -25,6 +26,12 @@ app.use(
 		saveUninitialized: false,
 	})
 );
+
+cloudinary.config({
+	cloud_name: 'abhishekk904',
+	api_key: '268768295192266',
+	api_secret: 'AaVloTDLCCE2FUfRDe2SYb5dtaE',
+});
 
 const loginRoute = require('./routes/loginRoutes');
 const registerRoute = require('./routes/registerRoutes');

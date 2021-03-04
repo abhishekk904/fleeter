@@ -205,6 +205,10 @@ $('#filePhoto').change((event) => {
 
 $('#imageUploadButton').click(() => {
 	var canvas = cropper.getCroppedCanvas();
+	$('#imageUploadButton').prop('disabled', true);
+	$('.imageUploadSpinner').html(
+		`<img src='/images/loadingSpinner.gif' alt='Loading Spinner' />`
+	);
 	if (canvas == null) {
 		return alert('Could not upload image');
 	}
@@ -247,6 +251,10 @@ $('#coverPhoto').change((event) => {
 });
 
 $('#coverPhotoButton').click(() => {
+	$('#coverPhotoButton').prop('disabled', true);
+	$('.coverPhotoSpinner').html(
+		`<img src='/images/loadingSpinner.gif' alt='Loading Spinner' />`
+	);
 	var canvas = cropper.getCroppedCanvas();
 	if (canvas == null) {
 		return alert('Could not upload image');
@@ -290,10 +298,14 @@ $('#postPhoto').change((event) => {
 });
 
 $('#postPhotoButton').click((event) => {
+	$('#postPhotoButton').prop('disabled', true);
 	const button = $(event.target);
 	const textbox = $('#postPhotoTextarea');
 	const formData = new FormData();
 	formData.append('content', textbox.val());
+	$('.postPhotoSpinner').html(
+		`<img src='/images/loadingSpinner.gif' alt='Loading Spinner' />`
+	);
 	if (cropper != null) {
 		var canvas = cropper.getCroppedCanvas();
 		if (canvas == null) {
@@ -468,13 +480,19 @@ function getMessageIdFromElement(element) {
 }
 
 function createPostHtml(postData, boldFont = false) {
-	if (postData === null) return alert('Post data null');
-	const isRetweet = postData.retweetData !== undefined;
+	if (postData == null) return alert('Post data null');
+	let isRetweet = false;
+	if (postData.retweetData) isRetweet = true;
 	const retweetedBy = isRetweet ? postData.postedBy.username : null;
-
 	postData = isRetweet ? postData.retweetData : postData;
+	if (!postData) console.log('eerrror');
+	const postedBy = postData.postedBy;
+	let content = postData.content;
 
-	const { postedBy, content } = postData;
+	if (postData.content === undefined) {
+		content =
+			"<div class='notAvailable'>This content is not available</div>";
+	}
 	if (postedBy._id === undefined) {
 		return console.log('User object not populated');
 	}
@@ -628,7 +646,7 @@ function outputPosts(results, container) {
 	});
 
 	if (results.length === 0) {
-		container.append(`<span class='noPosts'>End of post</span>`);
+		container.append(`<span class='noResults'>End of post</span>`);
 	}
 }
 

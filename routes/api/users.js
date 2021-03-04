@@ -10,6 +10,7 @@ const User = require('../../schema/UserSchema');
 const Post = require('../../schema/PostSchema');
 const Notification = require('../../schema/NotificationSchema');
 const { use } = require('../loginRoutes');
+const cloudinary = require('cloudinary').v2;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -115,12 +116,20 @@ router.post(
 				conole.log(error);
 				return res.sendStatus(400);
 			}
-			req.session.user = await User.findByIdAndUpdate(
-				req.session.user._id,
-				{ profilePic: filePath },
-				{ new: true }
+
+			await cloudinary.uploader.upload(
+				targetPath,
+				async (error, result) => {
+					if (error == undefined) {
+						req.session.user = await User.findByIdAndUpdate(
+							req.session.user._id,
+							{ profilePic: result.url },
+							{ new: true }
+						);
+						res.sendStatus(204);
+					}
+				}
 			);
-			res.sendStatus(204);
 		});
 	}
 );
@@ -142,12 +151,19 @@ router.post(
 				conole.log(error);
 				return res.sendStatus(400);
 			}
-			req.session.user = await User.findByIdAndUpdate(
-				req.session.user._id,
-				{ coverPhoto: filePath },
-				{ new: true }
+			await cloudinary.uploader.upload(
+				targetPath,
+				async (error, result) => {
+					if (error == undefined) {
+						req.session.user = await User.findByIdAndUpdate(
+							req.session.user._id,
+							{ coverPhoto: result.url },
+							{ new: true }
+						);
+						res.sendStatus(204);
+					}
+				}
 			);
-			res.sendStatus(204);
 		});
 	}
 );

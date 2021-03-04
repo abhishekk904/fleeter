@@ -9,6 +9,7 @@ const upload = multer({ dest: 'uploads/' });
 const User = require('../../schema/UserSchema');
 const Post = require('../../schema/PostSchema');
 const Notification = require('../../schema/NotificationSchema');
+const cloudinary = require('cloudinary').v2;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -86,33 +87,38 @@ router.post('/', upload.single('croppedImage'), async (req, res, next) => {
 				res.sendStatus(400);
 			}
 			postData.postPhoto = filePath;
-			Post.create(postData)
-				.then(async (newPost) => {
-					newPost = await User.populate(newPost, {
-						path: 'postedBy',
-					});
-					newPost = await Post.populate(newPost, {
-						path: 'replyTo',
-					});
+			await cloudinary.uploader.upload(targetPath, (error, result) => {
+				if (error == undefined) {
+					postData.postPhoto = result.url;
+					Post.create(postData)
+						.then(async (newPost) => {
+							newPost = await User.populate(newPost, {
+								path: 'postedBy',
+							});
+							newPost = await Post.populate(newPost, {
+								path: 'replyTo',
+							});
 
-					if (
-						newPost.replyTo !== undefined &&
-						newPost.replyTo.postedBy != req.session.user._id
-					) {
-						await Notification.insertNotification(
-							newPost.replyTo.postedBy,
-							req.session.user._id,
-							'reply',
-							newPost._id
-						);
-					}
+							if (
+								newPost.replyTo !== undefined &&
+								newPost.replyTo.postedBy != req.session.user._id
+							) {
+								await Notification.insertNotification(
+									newPost.replyTo.postedBy,
+									req.session.user._id,
+									'reply',
+									newPost._id
+								);
+							}
 
-					res.status(201).send(newPost);
-				})
-				.catch((error) => {
-					console.log(error);
-					return res.sendStatus(400);
-				});
+							res.status(201).send(newPost);
+						})
+						.catch((error) => {
+							console.log(error);
+							return res.sendStatus(400);
+						});
+				}
+			});
 		});
 	} else {
 		Post.create(postData)

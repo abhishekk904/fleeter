@@ -67,10 +67,11 @@ mixin createImageUploadModal()
                     span(aria-hidden='true') &times;
                 .modal-body
                     input#filePhoto(type="file", name="filePhoto")
-
+                    
                     .imagePreviewContainer
                         img#imagePreview
                 .modal-footer
+                    .imageUploadSpinner
                     button#imageUploadButton.btn(type='button') Save
 
 mixin createCoverPhotoUploadModal()
@@ -83,10 +84,10 @@ mixin createCoverPhotoUploadModal()
                     span(aria-hidden='true') &times;
                 .modal-body
                     input#coverPhoto(type="file", name="coverPhoto")
-
                     .coverPhotoPreviewContainer
                         img#coverPreview
                 .modal-footer
+                    .coverPhotoSpinner
                     button#coverPhotoButton.btn(type='button') Save
 
 mixin createPostPhotoUploadModal()
@@ -104,9 +105,11 @@ mixin createPostPhotoUploadModal()
                         .textareaContainer 
                             textarea#postPhotoTextarea(placeholder="What's happening?")
                     input#postPhoto(type="file", name="postPhoto")
+                    
                     .postPhotoPreviewContainer
                         img#postPreview
                 .modal-footer
+                    .postPhotoSpinner
                     button#postPhotoButton.btn(type='button', disabled="") Post
 
 mixin createPinPostModal()
