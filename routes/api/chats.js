@@ -10,6 +10,8 @@ const User = require('../../schema/UserSchema');
 const Post = require('../../schema/PostSchema');
 const Chat = require('../../schema/ChatSchema');
 const Message = require('../../schema/MessageSchema');
+const NodeRSA = require('node-rsa');
+const { public_key, private_key } = require('../keys');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -39,6 +41,9 @@ router.post('/', async (req, res, next) => {
 });
 
 router.get('/', async (req, res, next) => {
+	const key_public = new NodeRSA(public_key);
+	const key_private = new NodeRSA(private_key);
+
 	Chat.find({ users: { $elemMatch: { $eq: req.session.user._id } } })
 		.populate('users')
 		.populate('latestMessage')
@@ -58,6 +63,15 @@ router.get('/', async (req, res, next) => {
 			results = await User.populate(results, {
 				path: 'latestMessage.sender',
 			});
+
+			results.map((result) => {
+				if (result.latestMessage)
+					result.latestMessage.content = key_private.decrypt(
+						result.latestMessage.content,
+						'utf8'
+					);
+			});
+
 			res.status(200).send(results);
 		})
 		.catch((error) => {
@@ -80,9 +94,23 @@ router.get('/:chatId', async (req, res, next) => {
 });
 
 router.get('/:chatId/messages', async (req, res, next) => {
+	// console.log(public_key);
+	// console.log(private_key);
+	const key_public = new NodeRSA(public_key);
+	const key_private = new NodeRSA(private_key);
+
 	Message.find({ chat: req.params.chatId })
 		.populate('sender')
-		.then((results) => res.status(200).send(results))
+		.then((results) => {
+			results.map(
+				(result) =>
+					(result.content = key_private.decrypt(
+						result.content,
+						'utf8'
+					))
+			);
+			res.status(200).send(results);
+		})
 		.catch((error) => {
 			console.log(error);
 			res.sendStatus(400);

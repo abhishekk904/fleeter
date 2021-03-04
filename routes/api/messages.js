@@ -11,6 +11,8 @@ const Post = require('../../schema/PostSchema');
 const Chat = require('../../schema/ChatSchema');
 const Message = require('../../schema/MessageSchema');
 const Notification = require('../../schema/NotificationSchema');
+const NodeRSA = require('node-rsa');
+const { public_key, private_key } = require('../keys');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -19,10 +21,13 @@ router.post('/', async (req, res, next) => {
 		console.log('Invalid data passed into request');
 		return res.sendStatus(400);
 	}
+	const key_public = new NodeRSA(public_key);
+	const key_private = new NodeRSA(private_key);
+	const encrypted_message = key_public.encrypt(req.body.content, 'base64');
 
 	const newMessage = {
 		sender: req.session.user._id,
-		content: req.body.content,
+		content: encrypted_message,
 		chat: req.body.chatId,
 		readBy: [req.body.readBy],
 	};
@@ -38,7 +43,7 @@ router.post('/', async (req, res, next) => {
 			}).catch((error) => {
 				console.log(error);
 			});
-
+			message.content = req.body.content;
 			insertNotification(chat, message);
 
 			res.status(201).send(message);
