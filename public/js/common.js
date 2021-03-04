@@ -89,6 +89,20 @@ $('#submitPostButton, #submitReplyButton').click((event) => {
 	});
 });
 
+$('#readByModal').on('show.bs.modal', (event) => {
+	const button = $(event.relatedTarget);
+	const messageId = getMessageIdFromElement(button);
+	$.get(`/api/messages/${messageId}`, (results) => {
+		$('#readBymessage').text(results.content);
+		outputUsers(results.readBy, $('.readByContainer'), false);
+	});
+});
+
+$('#readByModal').on('hidden.bs.modal', (event) => {
+	$('#readBymessage').text('');
+	$('.readByContainer').html('');
+});
+
 $('#replyModal').on('show.bs.modal', (event) => {
 	const button = $(event.relatedTarget);
 	const postId = getPostIdFromElement(button);
@@ -445,6 +459,14 @@ function getPostIdFromElement(element) {
 	return postId;
 }
 
+function getMessageIdFromElement(element) {
+	const isRoot = element.hasClass('messageBody');
+	const rootElement = isRoot ? element : element.closest('.messageBody');
+	const messageId = rootElement.data().id;
+	if (messageId === undefined) return alert('Message id undefined');
+	return messageId;
+}
+
 function createPostHtml(postData, boldFont = false) {
 	if (postData === null) return alert('Post data null');
 	const isRetweet = postData.retweetData !== undefined;
@@ -627,10 +649,10 @@ function outputPostsWithReplies(results, container) {
 	});
 }
 
-function outputUsers(results, container) {
+function outputUsers(results, container, followButton = true) {
 	container.html('');
 	results.forEach((result) => {
-		const html = createUserHtml(result, true);
+		const html = createUserHtml(result, followButton);
 		container.append(html);
 	});
 	if (results.length == 0) {

@@ -160,11 +160,11 @@ function createMessageHtml(message, nextMessage, lastSenderId) {
                             </div>`;
 	}
 
-	return `<li class='message ${liClassName}'>
+	return `<li class='message ${liClassName}' >
                 ${imageContainer}
                 <div class='messageContainer'>
                     ${nameElement}
-                    <span class='messageBody'>${message.content}</span>
+                    <span class='messageBody' data-id='${message._id}' data-toggle='modal' data-target='#readByModal'>${message.content}</span>
                 </div>
             </li>`;
 }

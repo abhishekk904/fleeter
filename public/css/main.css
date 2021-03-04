@@ -1033,6 +1033,22 @@ button span {
 	border: 1px solid rgb(30, 47, 65);
 }
 
+.messageBody {
+	cursor: pointer;
+}
+.readByContainer div {
+	display: flex;
+	margin-bottom: 10px;
+}
+.readByContainer div:last-child {
+	margin-bottom: 0px;
+}
+
+#readBymessage {
+	font-size: 18px;
+	font-weight: 400;
+}
+
 @media screen and (max-width: 1250px) {
 	.latestTrendingPost,
 	.userSuggestions {

@@ -54,6 +54,22 @@ router.post('/', async (req, res, next) => {
 		});
 });
 
+router.get('/:messageId', async (req, res, next) => {
+	const key_public = new NodeRSA(public_key);
+	const key_private = new NodeRSA(private_key);
+
+	Message.findById(req.params.messageId)
+		.populate('readBy')
+		.then((message) => {
+			message.content = key_private.decrypt(message.content, 'utf8');
+			res.status(201).send(message);
+		})
+		.catch((error) => {
+			console.log(error);
+			res.sendStatus(400);
+		});
+});
+
 function insertNotification(chat, message) {
 	chat.users.forEach((userId) => {
 		if (userId == message.sender._id.toString()) return;

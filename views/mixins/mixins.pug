@@ -171,3 +171,18 @@ mixin createChatNameModal(chat)
                     input#chatNameTextbox(type="text", placeholder='Enter a name for this chat', value=chat.chatName)
                 .modal-footer
                     button#chatNameButton.btn(type='button') Save
+
+mixin createReadByModal(chat)
+    #readByModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='readByModalLabel', aria-hidden='true')
+        .modal-dialog(role='document')
+            .modal-content
+                .modal-header
+                    h5#chatNameModalLabel.modal-title Read By
+                    button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span(aria-hidden='true') &times;
+                .modal-body
+                    p#readBymessage
+                    .readByContainer
+                .modal-footer
+
+
