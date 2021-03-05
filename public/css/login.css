@@ -30,8 +30,8 @@ html body {
 	border-radius: 20px;
 	background-color: rgba(37, 36, 36, 0.95);
 	color: #333;
-
-	backdrop-filter: blur(1x);
+	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(10x);
 	background-color: rgba(0, 0, 0, 0.5);
 }
 .loginContainer h1 {
@@ -49,15 +49,22 @@ input[type='password'] {
 	margin-bottom: 20px;
 	padding: 5px 10px;
 	border-radius: 8px;
-	border: 1px solid #dedede;
-	background-color: #f2f2f2;
+	border: 1px solid #424141;
+	color: white;
+	background-color: transparent;
+	outline: none;
 }
 
 input[type='submit'] {
 	background-color: #1fa2f1;
-	color: white;
+	color: black;
+	font-weight: bold;
 	border: none;
 	border-radius: 8px;
 	margin-bottom: 10px;
 	padding: 5px 10px;
+}
+
+.errorMessage {
+	color: red;
 }
