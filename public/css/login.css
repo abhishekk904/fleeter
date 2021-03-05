@@ -31,7 +31,7 @@ html body {
 	background-color: rgba(37, 36, 36, 0.95);
 	color: #333;
 	-webkit-backdrop-filter: blur(10px);
-	backdrop-filter: blur(10x);
+	backdrop-filter: blur(10px);
 	background-color: rgba(0, 0, 0, 0.5);
 }
 .loginContainer h1 {
@@ -66,5 +66,5 @@ input[type='submit'] {
 }
 
 .errorMessage {
-	color: red;
+	color: rgb(165, 31, 31);
 }
