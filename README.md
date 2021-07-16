@@ -1,2 +1,2 @@
 # fleeter
-Twitter Clone
+Full fledged social networking app
